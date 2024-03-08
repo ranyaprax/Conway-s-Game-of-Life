@@ -175,7 +175,6 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
             prevX = curX;
             prevY = curY;
 
-            System.out.println("Pressed");
         } else if (StateOfGame == 2) { //paused window
             //start over button
             if ((e.getX() >= 465 && e.getX() <= 472) && (e.getY() >= 229 && e.getY() <= 241)) {
