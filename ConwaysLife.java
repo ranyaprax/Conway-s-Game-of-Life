@@ -17,7 +17,6 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
     //variable for grid of squares
     private final boolean[][][] gameState = new boolean[40][40][2];
 
-    boolean click = false; //for buttons, so that the squares under it cant be pressed
     int prevX,prevY,curX,curY = 0; //previous x and y for mouse dragged function
     boolean moving = false; //for the dragged mouse, so that the pressed doesn't get called too
     int x,y; //variables for changing squares on mouse drag and press
@@ -114,13 +113,17 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
     }
 
     public void mouseClicked(MouseEvent e) {
-        click = true; //indicates that the user cannot change a square value because a button has been pressed
+
+    }
+
+    public void mousePressed(MouseEvent e) {
         String workingDirectory = System.getProperty("user.dir"); //get the directory we're in
-        String filename = workingDirectory + "/lifeGame.txt"; //create a file in the directory called lifeGame.txt
 
         //Save button
         if((e.getX() >=280 && e.getX() <=321) && (e.getY() >=32 && e.getY() <= 52)){
             StateOfGame = 1; //change to not playing
+            String saveFile = JOptionPane.showInputDialog("Enter a file name (include the .txt) \n Note if you enter a file name that already exists, it will draw over it: ");
+            String filename = workingDirectory + "/" + saveFile; //create a file in the directory called lifeGame.txt
             try{
                 BufferedWriter writer = new BufferedWriter((new FileWriter(filename)));
                 String data = writeData(); //call function that writes the current states of the squares to the file
@@ -129,16 +132,18 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
             } catch (IOException p){}
         }
         //Load button
-        if((e.getX() >=220 && e.getX() <=264) && (e.getY() >=32 && e.getY() <= 52)){
-           StateOfGame = 1; //change to not playing
-           String line;
-           int count = 0; //counter for y in gameState array
+        else if((e.getX() >=220 && e.getX() <=264) && (e.getY() >=32 && e.getY() <= 52)){
+            StateOfGame = 1; //change to not playing
+            String loadFile = JOptionPane.showInputDialog("Enter a file name (include the .txt) and make sure this file exists!: ");
+            String filename2 = workingDirectory + "/" + loadFile;
+            String line;
+            int count = 0; //counter for y in gameState array
             try{
-                BufferedReader reader = new BufferedReader(new FileReader(filename));
+                BufferedReader reader = new BufferedReader(new FileReader(filename2));
                 while((line=reader.readLine()) != null){ //while the next line is not empty
                     for(int i=0;i<line.length();i++){
                         gameState[i][count][0] = line.charAt(i) == '1'; //set the gameState current square to the result of "is the character a '1'
-                                                                        //therefore, if it's a 1, then it will set it to true, otherwise false
+                        //therefore, if it's a 1, then it will set it to true, otherwise false
                     }
                     count++;//increment count to go to the next y line
                 }
@@ -146,27 +151,19 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
             }catch (IOException o){}
         }
         //start button
-        if ((e.getX() >= 7 && e.getX() <= 52) && (e.getY() >= 32 && e.getY() <= 52)) {
+        else if ((e.getX() >= 7 && e.getX() <= 52) && (e.getY() >= 32 && e.getY() <= 52)) {
             StateOfGame = 0; //change to playing
         }
         //Random Button
-        if ((e.getX() >= 60 && e.getX() <= 130) && (e.getY() >= 32 && e.getY() <= 52)) {
+        else if ((e.getX() >= 60 && e.getX() <= 130) && (e.getY() >= 32 && e.getY() <= 52)) {
             randomise(); //randomise the cells
             StateOfGame = 1; //keep at 'not playing' until user presses start
         }
         //Stop Button
-        if ((e.getX() >= 143 && e.getX() <= 184) && (e.getY() >= 32 && e.getY() <= 52)) {
+        else if ((e.getX() >= 143 && e.getX() <= 184) && (e.getY() >= 32 && e.getY() <= 52)) {
             StateOfGame = 2; //pause window
         }
-        click = false;
-    }
-
-    public void mousePressed(MouseEvent e) {
-        if (StateOfGame == 1 && !moving) { //if it's not playing let the user pick squares to change
-            System.out.println(click);
-            if(click){ //if any of the buttons have been pressed, then don't let the user change the squares around it
-                return;
-            }
+        else if (StateOfGame == 1 && !moving) { //if it's not playing let the user pick squares to change
             //get the x and y of the square in the array
             x = e.getX() / 20;
             y = e.getY() / 20;
@@ -183,7 +180,6 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
             //start over button
             if ((e.getX() >= 465 && e.getX() <= 472) && (e.getY() >= 229 && e.getY() <= 241)) {
                 restart();
-                StateOfGame = 1;//change to not playing screen
             }
             //continue button
             if ((e.getX() >= 630 && e.getX() <= 642) && (e.getY() >= 269 && e.getY() <= 281)) {
@@ -192,15 +188,12 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
         } else if (StateOfGame == 3) { //game over window
             if ((e.getX() >= 560 && e.getX() <= 572) && (e.getY() >= 229 && e.getY() <= 241)) {
                 restart(); //restarts the game for the user
-                StateOfGame = 1;//set the state to not playing
             }
         }
-        repaint();
     }
 
     public void mouseReleased(MouseEvent e) {
         moving = false;
-        System.out.println("Released");
     }
 
     public void mouseEntered(MouseEvent e) {
@@ -216,7 +209,7 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
 
         for (int x = 0; x < 40; x++) {
             for (int y = 0; y < 40; y++) {
-                gameState[x][y][0] = random.nextDouble() < 0.25; //give each cell a random change to be alive or dead
+                gameState[x][y][0] = random.nextDouble() < 0.5; //give each cell a random change to be alive or dead
             }
         }
     }
@@ -229,6 +222,7 @@ public class ConwaysLife extends JFrame implements Runnable, MouseListener, Mous
                 gameState[x][y][1] = false;
             }
         }
+        StateOfGame = 1;
     }
 
     public void updateGame() {
